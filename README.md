@@ -1,4 +1,4 @@
-# 📚 Transcripción Contextual - Optimización UNINORTE
+# 📚 Transcripción Contextual
 
 Este proyecto es una aplicación web diseñada para estudiantes de la asignatura de **Optimización** en la Universidad del Norte. Permite subir grabaciones de clase, notas y bibliografía, para generar automáticamente transcripciones procesadas y guías de estudio exportables en LaTeX o PDF.
 
