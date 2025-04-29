@@ -112,6 +112,28 @@ app.get("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   }
 });
 
+app.delete("/api/userchats/:id", ClerkExpressRequireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
+  const chatId = req.params.id;
+
+  try {
+    // 1. Eliminar el chat en sí
+    await Chat.deleteOne({ _id: chatId, userId });
+
+    // 2. Eliminar la referencia en el documento de UserChats
+    await UserChats.updateOne(
+      { userId },
+      { $pull: { chats: { _id: chatId } } }
+    );
+
+    res.status(200).send({ message: "Chat eliminado con éxito" });
+  } catch (err) {
+    console.error("Error al eliminar chat:", err);
+    res.status(500).send("Error al eliminar chat");
+  }
+});
+
+
 app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
   const userId = req.auth.userId;
 

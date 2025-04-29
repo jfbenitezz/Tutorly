@@ -19,7 +19,10 @@ const NewPrompt = ({ data }) => {
   const initialHistory = data?.history && data.history.length > 0
   ? data.history.map(({ role, parts }) => ({
       role: role || "user", // Ensure there's always a role (default to "user")
-      parts: [{ text: parts[0]?.text }],
+      parts: [   {
+        text:
+          "Actúa como un tutor paciente, claro y experto. Tu trabajo es ayudar a los estudiantes a entender temas difíciles, explicar con ejemplos y fomentar el aprendizaje.",
+      }],
     }))
   : [{ role: "user", parts: [{ text: "Hello, how can I assist you?" }] }]; // Default user message
 
