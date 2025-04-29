@@ -1,6 +1,6 @@
 # 📚 Transcripción Contextual
 
-Este proyecto es una aplicación web diseñada para estudiantes de la asignatura de **Optimización** en la Universidad del Norte. Permite subir grabaciones de clase, notas y bibliografía, para generar automáticamente transcripciones procesadas y guías de estudio exportables en LaTeX o PDF.
+Aplicación web diseñada para estudiantes de una asignaturaen la Universidad del Norte. Permite organizar grabaciones, notas y bibliografía por clase, procesarlas automáticamente y generar guías de estudio en formatos LaTeX y PDF.
 
 ---
 
@@ -8,18 +8,18 @@ Este proyecto es una aplicación web diseñada para estudiantes de la asignatura
 
 ### 🗂 Explorador de clases estilo Google Drive
 - Visualización por carpetas de clase (Semana 1, Semana 2, etc.).
-- Archivos clasificados por tipo: audio, pdf, imagen, video.
-- Estilo visual moderno con hover animado y responsive.
+- Archivos organizados por tipo: audio, PDF, imagen, video.
+- Interfaz moderna, responsiva y con animaciones suaves al interactuar.
 
-### 🔄 Procesamiento simulado por pasos
-- Botón **"Procesar clase"** por cada carpeta.
-- Animación de pasos: preprocesamiento, transcripción, contextualización y generación de guía.
-- Progreso con duraciones aleatorias y loader dinámico.
+### 🔄 Procesamiento paso a paso
+- Botón **"Procesar clase"** para cada grupo de archivos.
+- Visualización de progreso con pasos animados y tiempos realistas.
+- Indicadores dinámicos que muestran el avance del análisis.
 
-### 📄 Visualización de guía de estudio
-- Versión en LaTeX editable y descargable.
-- Generación de PDF estilizado desde un mock.
-- Preparado para integración futura con backend real.
+### 📄 Guía de estudio
+- Visualización de contenido académico estructurado.
+- Exportación en formato **LaTeX** y generación de **PDF profesional**.
+- Pensado para mejorar la comprensión de temas complejos.
 
 ---
 
