@@ -16,17 +16,20 @@ const NewPrompt = ({ data }) => {
     aiData: {},
   });
 
-  const chat = model.startChat({
-    history: [
-      data?.history.map(({ role, parts }) => ({
-        role,
-        parts: [{ text: parts[0].text }],
-      })),
-    ],
-    generationConfig: {
-      // maxOutputTokens: 100,
-    },
-  });
+  const initialHistory = data?.history && data.history.length > 0
+  ? data.history.map(({ role, parts }) => ({
+      role: role || "user", // Ensure there's always a role (default to "user")
+      parts: [{ text: parts[0]?.text }],
+    }))
+  : [{ role: "user", parts: [{ text: "Hello, how can I assist you?" }] }]; // Default user message
+
+const chat = model.startChat({
+  history: initialHistory,
+  generationConfig: {
+    // maxOutputTokens: 100,
+  },
+});
+
 
   const endRef = useRef(null);
   const formRef = useRef(null);
@@ -39,7 +42,7 @@ const NewPrompt = ({ data }) => {
 
   const mutation = useMutation({
     mutationFn: () => {
-      return fetch(`${import.meta.env.VITE_API_URL}/api/chats/${data._id}`, {
+      return fetch(`http://localhost:3000/api/chats/${data._id}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -136,7 +139,7 @@ const NewPrompt = ({ data }) => {
       <form className="newForm" onSubmit={handleSubmit} ref={formRef}>
         <Upload setImg={setImg} />
         <input id="file" type="file" multiple={false} hidden />
-        <input type="text" name="text" placeholder="Ask anything..." />
+        <input type="text" name="text" placeholder="Pregunta un tema..." />
         <button>
           <img src="/arrow.png" alt="" />
         </button>

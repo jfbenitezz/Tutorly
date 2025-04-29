@@ -10,13 +10,10 @@ const Homepage = () => {
     <div className="homepage">
       <img src="/orbital.png" alt="" className="orbital" />
       <div className="left">
-        <h1>LAMA AI</h1>
-        <h2>Supercharge your creativity and productivity</h2>
-        <h3>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat sint
-          dolorem doloribus, architecto dolor.
-        </h3>
-        <Link to="/dashboard">Get Started</Link>
+        <h1>TUTORLY</h1>
+        <h2>Transforma tus clases en herramientas de aprendizaje inteligente</h2>
+        <h3>Accede a transcripciones automatizadas, contextualizadas y guías de estudio generadas por IA a partir de tus clases.</h3>
+        <Link to="/dashboard">EMPEZEMOS </Link>
       </div>
       <div className="right">
         <div className="imgContainer">
@@ -37,26 +34,25 @@ const Homepage = () => {
             />
             <TypeAnimation
               sequence={[
-                // Same substring at the start will only be typed out once, initially
-                "Human:We produce food for Mice",
+                "Estudiante: No entiendo el ejemplo de programación lineal",
                 2000,
                 () => {
-                  setTypingStatus("bot");
+                  setTypingStatus("ia");
                 },
-                "Bot:We produce food for Hamsters",
+                "IA: Aquí tienes una guía paso a paso con ejemplos y referencias",
                 2000,
                 () => {
-                  setTypingStatus("human2");
+                  setTypingStatus("estudiante2");
                 },
-                "Human2:We produce food for Guinea Pigs",
+                "Estudiante2: ¿Puedes incluir mis notas en la explicación?",
                 2000,
                 () => {
-                  setTypingStatus("bot");
+                  setTypingStatus("ia");
                 },
-                "Bot:We produce food for Chinchillas",
+                "IA: Claro, integré tus notas y la bibliografía para reforzar el tema",
                 2000,
                 () => {
-                  setTypingStatus("human1");
+                  setTypingStatus("estudiante1");
                 },
               ]}
               wrapper="span"
@@ -64,6 +60,7 @@ const Homepage = () => {
               cursor={true}
               omitDeletionAnimation={true}
             />
+
           </div>
         </div>
       </div>

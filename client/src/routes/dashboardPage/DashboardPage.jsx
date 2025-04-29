@@ -9,7 +9,7 @@ const DashboardPage = () => {
 
   const mutation = useMutation({
     mutationFn: (text) => {
-      return fetch(`${import.meta.env.VITE_API_URL}/api/chats`, {
+      return fetch(`http://localhost:3000/api/chats`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -37,21 +37,18 @@ const DashboardPage = () => {
       <div className="texts">
         <div className="logo">
           <img src="/logo.png" alt="" />
-          <h1>LAMA AI</h1>
+          <h1>TUTORLY</h1>
         </div>
         <div className="options">
           <div className="option">
             <img src="/chat.png" alt="" />
-            <span>Create a New Chat</span>
+            <span>Crea un nuevo chat</span>
           </div>
           <div className="option">
             <img src="/image.png" alt="" />
-            <span>Analyze Images</span>
+            <span>Subir Bibliografia</span>
           </div>
-          <div className="option">
-            <img src="/code.png" alt="" />
-            <span>Help me with my Code</span>
-          </div>
+      
         </div>
       </div>
       <div className="formContainer">

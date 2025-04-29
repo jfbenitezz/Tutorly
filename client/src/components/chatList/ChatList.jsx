@@ -6,7 +6,7 @@ const ChatList = () => {
   const { isPending, error, data } = useQuery({
     queryKey: ["userChats"],
     queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_URL}/api/userchats`, {
+      fetch(`http://localhost:3000/api/userchats`, {
         credentials: "include",
       }).then((res) => res.json()),
   });
@@ -14,11 +14,11 @@ const ChatList = () => {
   return (
     <div className="chatList">
       <span className="title">DASHBOARD</span>
-      <Link to="/dashboard">Create a new Chat</Link>
-      <Link to="/">Explore Lama AI</Link>
-      <Link to="/">Contact</Link>
+      <Link to="/dashboard">Crea un chat</Link>
+      <Link to="/">Explora Tutorly</Link>
+      <Link to="/">Contacto</Link>
       <hr />
-      <span className="title">RECENT CHATS</span>
+      <span className="title">CHATS RECIENTES</span>
       <div className="list">
         {isPending
           ? "Loading..."
@@ -33,10 +33,7 @@ const ChatList = () => {
       <hr />
       <div className="upgrade">
         <img src="/logo.png" alt="" />
-        <div className="texts">
-          <span>Upgrade to Lama AI Pro</span>
-          <span>Get unlimited access to all features</span>
-        </div>
+
       </div>
     </div>
   );
