@@ -1,0 +1,16 @@
+.transcriptPlayer {
+    padding: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .transcript p {
+    margin: 0.5rem 0;
+    transition: background-color 0.3s;
+  }
+  
+  .transcript p.active {
+    background-color: #2d3738;
+    font-weight: bold;
+  }
+  

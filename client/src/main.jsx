@@ -9,7 +9,9 @@ import RootLayout from "./layouts/rootLayout/RootLayout";
 import DashboardLayout from "./layouts/dashboardLayout/DashboardLayout";
 import SignInPage from "./routes/signInPage/signInPage";
 import SignUpPage from "./routes/signUpPage/signUpPage";
-
+import FileSystemSimulator from "./routes/fileSystemSimulator/FileSystemSimulator";
+import TranscriptPlayer from "./routes/transcriptPlayer/TranscriptPlayer";
+import StudyGuideViewer from "./routes/studyGuideViewer/StudyGuideViewer";
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -26,6 +28,7 @@ const router = createBrowserRouter([
         path: "/sign-up/*",
         element: <SignUpPage />,
       },
+
       {
         element: <DashboardLayout />,
         children: [
@@ -36,6 +39,18 @@ const router = createBrowserRouter([
           {
             path: "/dashboard/chats/:id",
             element: <ChatPage />,
+          },
+          {
+            path: "/file-system*",
+            element: <FileSystemSimulator/>,
+          },
+          {
+            path: "/transcript-player*",
+            element: <TranscriptPlayer/>,
+          },
+          {
+            path: "/study-guide-viewer*",
+            element: <StudyGuideViewer/>,
           },
         ],
       },
