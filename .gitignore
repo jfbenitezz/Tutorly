@@ -28,3 +28,4 @@ chroma_db/
 transcription_server/output
 transcription_server/audios
 transcription_server/vosk*
+*/__pycache__
