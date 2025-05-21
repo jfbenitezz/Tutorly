@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic
+sounddevice
+vosk
+librosa
+soundfile
+numpy
+pydub
+scipy
+google-generativeai
+google-api-core

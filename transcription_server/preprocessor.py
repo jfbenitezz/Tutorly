@@ -34,7 +34,6 @@ from pydub.silence import split_on_silence
 from scipy.signal import medfilt
 import wave
 import argparse
-import traceback
 
 
 """# Conversión de formato del audio"""
