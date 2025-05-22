@@ -51,7 +51,7 @@ const processAudio = async (audioId, options = {}) => {
 
 const transcribeAudio = async (audioId, options = {}) => {
   // options podría ser, por ejemplo, { use_fallback: true } o { use_fallback: false }
-  let url = `${BACKEND_PROXY_URL}/api/audio/transcribe/${audioId}`;
+  let url = `${BACKEND_PROXY_URL}/api/audio/transcribe/${"0a7333ea-20f6-4a93-8ba8-34d80b6758f8"}`;
   const queryParams = new URLSearchParams();
   if (options.use_fallback !== undefined) {
     queryParams.append('use_fallback', options.use_fallback);

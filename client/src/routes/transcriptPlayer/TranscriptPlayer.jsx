@@ -42,7 +42,7 @@ const TranscriptPlayer = ({ audioId, processedAudioPath, originalFilenameFromPro
         // Asegúrate de que useFallbackForTranscription tenga un valor booleano definido
         // Si no se pasa, puedes asumir un valor por defecto, por ejemplo, false.
         const fallbackValue = typeof useFallbackForTranscription === 'boolean' ? useFallbackForTranscription : false;
-        const fetchUrl = `/api/audio/transcribe/${audioId}?use_fallback=${fallbackValue}`;
+        const fetchUrl = `/api/audio/transcribe/${"0a7333ea-20f6-4a93-8ba8-34d80b6758f8"}?use_fallback=${fallbackValue}`;
         
         console.log("[TranscriptPlayer] Fetching transcription from URL:", fetchUrl);
 

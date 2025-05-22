@@ -411,6 +411,38 @@ async def transcribe_segment_fallback(audio_path: str) -> str:
             status_code=500,
             detail=f"Error en fallback Gemini: {str(e)}"
         )
+    
+class AudioTranscriptionResponse(BaseModel):
+    audio_id: str
+    status: str
+    segments: List[TranscriptionSegment]
+    complete_transcription: str
+    transcription_path: str
+
+
+@transcribe_router.get("/{audio_id}", response_model=AudioTranscriptionResponse)
+async def get_transcription_status(audio_id: str):
+    """
+    Check if a transcription exists for the given audio ID.
+    Returns the existing transcription if found, or 404 if not.
+    """
+    transcription_path = os.path.join(TRANSCRIPTIONS_DIR, f"{audio_id}.json")
+    
+    if not os.path.exists(transcription_path):
+        raise HTTPException(
+            status_code=404,
+            detail="Transcription not found for this audio ID"
+        )
+    
+    try:
+        with open(transcription_path, "r") as f:
+            existing_data = json.load(f)
+        return AudioTranscriptionResponse(**existing_data)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error reading transcription file: {str(e)}"
+        )
 
 app.include_router(transcribe_router)
 if __name__ == "__main__":
