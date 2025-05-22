@@ -271,13 +271,25 @@ app.post("/api/audio/process/:audioId", ClerkExpressRequireAuth(), async (req, r
 // 4. Transcribir un audio
 app.post("/api/audio/transcribe/:audioId", ClerkExpressRequireAuth(), async (req, res) => {
   try {
-    const { audioId } = req.params;
-    // The transcription server might take a query param `use_fallback`
-    const response = await axios.post(`${TRANSCRIPTION_SERVER_URL}/transcribe/${audioId}`, req.body);
-    res.json(response.data);
+    const { audio_id } = req.params;
+    const { use_fallback } = req.query; // TOMA 'use_fallback' DE LOS QUERY PARAMS DE ESTA RUTA
+
+    let transcriptionServiceUrl = `${TRANSCRIPTION_SERVER_URL}/transcribe/${audio_id}`;
+
+    if (use_fallback !== undefined) {
+      const fallbackValue = String(use_fallback).toLowerCase() === 'true';
+      transcriptionServiceUrl += `?use_fallback=${fallbackValue}`; // AÑADE use_fallback A LA URL DEL SERVICIO
+    }
+
+    // ENVÍA UN CUERPO VACÍO AL SERVICIO DE TRANSCRIPCIÓN
+    const response = await axios.post(transcriptionServiceUrl, {}); 
+
+    res.status(response.status).json(response.data);
   } catch (error) {
     console.error("Error al transcribir el audio:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Error al transcribir el audio", details: error.message });
+    const status = error.response ? error.response.status : 500;
+    const data = error.response ? error.response.data : { error: "Error al transcribir el audio", details: error.message };
+    res.status(status).json(data);
   }
 });
 

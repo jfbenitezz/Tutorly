@@ -106,6 +106,7 @@
   margin-bottom: 0; /* Quitamos margen inferior */
   min-width: 280px; /* Ancho mínimo para que el banner de estado no se comprima demasiado */
 }
+
 .fss-status-title-inline { /* Título opcional para el estado, si quieres que sea menos prominente */
     /* font-size: 1rem; */
     /* margin-bottom: 0.75rem; */
@@ -214,6 +215,85 @@
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 0.875rem; line-height: 1.65; color: #18191e; 
 }
+
+/* NUEVO: Estilos para simular un Switch con el Checkbox de Fallback */
+.fss-fallback-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem; 
+  /* Eliminamos el fondo y borde del contenedor, ya que el switch será el elemento visual principal */
+  /* background-color: #3a374a;  */
+  /* border-radius: 8px; */
+  /* border: 1px solid #4a4658; */
+  padding: 0.5rem 0; /* Un poco de padding vertical si es necesario, horizontal no tanto */
+}
+
+.fss-fallback-checkbox-input { /* Ocultamos el checkbox nativo */
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute; 
+}
+
+.fss-fallback-checkbox-label {
+  font-size: 0.875rem; /* Tamaño del texto descriptivo */
+  color: #c7c3d7;     /* Color del texto descriptivo */
+  cursor: pointer;
+  user-select: none; 
+  display: flex;
+  align-items: center;
+  position: relative; /* Para posicionar el pseudo-elemento o el span del switch */
+}
+
+.fss-fallback-switch-ui { /* Este es el "cuerpo" del switch */
+  display: inline-block;
+  width: 44px;  /* Ancho del switch */
+  height: 24px; /* Alto del switch */
+  background-color: #4a4658; /* Color del switch cuando está apagado (gris oscuro) */
+  border-radius: 12px; /* Bordes completamente redondeados */
+  position: relative;
+  transition: background-color 0.3s ease;
+  margin-right: 0.75rem; /* Espacio entre el switch y el texto */
+  border: 1px solid #5f5b70; /* Borde sutil */
+}
+
+.fss-fallback-switch-ui::after { /* Este es el "botón" o "deslizador" del switch */
+  content: '';
+  position: absolute;
+  width: 18px;  /* Ancho del deslizador */
+  height: 18px; /* Alto del deslizador */
+  background-color: #e3e6f0; /* Color del deslizador (gris claro) */
+  border-radius: 50%; /* Círculo perfecto */
+  top: 2px;     /* Posicionamiento vertical ( (24-18)/2 ) */
+  left: 3px;    /* Posicionamiento inicial a la izquierda ( (24-18)/2 ) + un poco de margen */
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Estilos cuando el checkbox está marcado (input:checked + label .switch-ui) */
+.fss-fallback-checkbox-input:checked + .fss-fallback-checkbox-label .fss-fallback-switch-ui {
+  background-color: #788bff; /* Color del switch cuando está encendido (azul primario) */
+  border-color: #6a7de8;
+}
+
+.fss-fallback-checkbox-input:checked + .fss-fallback-checkbox-label .fss-fallback-switch-ui::after {
+  transform: translateX(19px); /* Mover el deslizador a la derecha (44 - 18 - 3 - 3 (márgenes aprox)) */
+  background-color: #ffffff; /* Deslizador blanco cuando está encendido */
+}
+
+/* Estilos para el estado deshabilitado del switch simulado */
+.fss-fallback-checkbox-input:disabled + .fss-fallback-checkbox-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+/* No es necesario estilizar el :disabled del switch-ui por separado si el label ya tiene opacidad */
+
+
+/* Ajustes para la sección de acciones para que el título quede bien con el nuevo switch */
+.fss-actions-section .fss-section-title {
+    margin-bottom: 0.75rem; /* Menos espacio si el switch está justo debajo */
+}
+
 
 /* Save Form (sin cambios) */
 .fss-save-form-container { margin-top: 2rem; padding: 1.5rem; background-color: #3a374a; border: 1px solid #4a4658; border-radius: 10px; }

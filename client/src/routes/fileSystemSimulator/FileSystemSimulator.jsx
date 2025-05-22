@@ -5,12 +5,11 @@ import { FiUpload, FiSave, FiRefreshCw, FiAlertTriangle } from 'react-icons/fi';
 import { FaFileAudio, FaFileAlt, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { MdCancel, MdCloudUpload } from 'react-icons/md';
-import "./fileSystemSimulator.css"; 
+import "./fileSystemSimulator.css";
 
 const BACKEND_PROXY_URL = "http://localhost:3000";
 
-// --- Funciones API (sin cambios) ---
-// ... (Copia aquí tus funciones API: uploadAudio, getAudioStatus, processAudio, transcribeAudio, cleanupAudio)
+// --- Funciones API ---
 const uploadAudio = async (file) => {
   try {
     const formData = new FormData();
@@ -51,17 +50,21 @@ const processAudio = async (audioId, options = {}) => {
 };
 
 const transcribeAudio = async (audioId, options = {}) => {
+  // options podría ser, por ejemplo, { use_fallback: true } o { use_fallback: false }
   let url = `${BACKEND_PROXY_URL}/api/audio/transcribe/${audioId}`;
-  if (options.use_fallback) {
-    url += '?use_fallback=true';
+  const queryParams = new URLSearchParams();
+  if (options.use_fallback !== undefined) {
+    queryParams.append('use_fallback', options.use_fallback);
+  }
+  const queryString = queryParams.toString();
+  if (queryString) {
+    url += `?${queryString}`;
   }
   try {
-    const response = await axios.post(url, {}, {
-      withCredentials: true,
-    });
+    const response = await axios.post(url, {}, { withCredentials: true, });
     return response.data;
   } catch (error) {
-    console.error("Error al transcribir el audio:", error.response ? error.response.data : error.message);
+    console.error("Error al transcribir el audio (frontend):", error.response ? error.response.data : error.message);
     throw error;
   }
 };
@@ -87,17 +90,19 @@ function FileSystemSimulator() {
   const [audioFile, setAudioFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
   const [audioId, setAudioId] = useState(null);
-  
+
   const [currentProcessStatus, setCurrentProcessStatus] = useState(null);
   const [transcriptionData, setTranscriptionData] = useState(null);
-  const [overallProgress, setOverallProgress] = useState('idle'); 
-  
+  const [overallProgress, setOverallProgress] = useState('idle');
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentError, setCurrentError] = useState(null);
   const [pollingIntervalId, setPollingIntervalId] = useState(null);
   const [outputFileName, setOutputFileName] = useState("transcripcion.txt");
 
-  const simulatedSaveLocation = "la ubicación de guardado predeterminada"; 
+  const [useFallback, setUseFallback] = useState(false); // <--- NUEVO ESTADO para el fallback
+
+  const simulatedSaveLocation = "la ubicación de guardado predeterminada";
 
   useEffect(() => {
     return () => {
@@ -147,7 +152,7 @@ function FileSystemSimulator() {
       setPollingIntervalId(null);
     }
   };
-  
+
   const startAudioProcessingFlow = async () => {
     if (!audioFile) return;
     setIsLoading(true);
@@ -164,17 +169,19 @@ function FileSystemSimulator() {
       const processParams = { target_sr: 16000, gain_db: 5, segment_min: 15, overlap_sec: 30, do_noise_reduction: true, do_segmentation: true };
       const processResult = await processAudio(currentAudioId, processParams);
       setCurrentProcessStatus(processResult.processing_status);
+
       if (processResult.processing_status === "completed" || processResult.processing_status === "processed") {
         setOverallProgress('transcribing');
-        const transResult = await transcribeAudio(currentAudioId, { use_fallback: false });
+        // USAREMOS EL ESTADO useFallback AQUÍ
+        const transResult = await transcribeAudio(currentAudioId, { use_fallback: useFallback });
         setTranscriptionData(transResult);
         setOverallProgress('completed');
         setIsLoading(false);
       } else if (processResult.processing_status === "failed") {
-          throw new Error(processResult.error || "Fallo durante el procesamiento del audio en el servidor.");
+        throw new Error(processResult.error || "Fallo durante el procesamiento del audio en el servidor.");
       } else {
         const interval = setInterval(async () => {
-          if (!currentAudioId) { 
+          if (!currentAudioId) {
             clearInterval(interval);
             setPollingIntervalId(null);
             return;
@@ -184,18 +191,19 @@ function FileSystemSimulator() {
             setCurrentProcessStatus(statusResult.processing_status);
             if (statusResult.processing_status === "completed" || statusResult.processing_status === "processed") {
               clearInterval(interval); setPollingIntervalId(null); setOverallProgress('transcribing');
-              const transResult = await transcribeAudio(currentAudioId, { use_fallback: false });
+              // USAREMOS EL ESTADO useFallback AQUÍ TAMBIÉN
+              const transResult = await transcribeAudio(currentAudioId, { use_fallback: useFallback });
               setTranscriptionData(transResult); setOverallProgress('completed'); setIsLoading(false);
             } else if (statusResult.processing_status === "failed") {
               clearInterval(interval); setPollingIntervalId(null);
               throw new Error(statusResult.error || "El procesamiento del audio falló en el servidor.");
             }
           } catch (pollError) {
-            clearInterval(interval); setPollingIntervalId(null); 
+            clearInterval(interval); setPollingIntervalId(null);
             if (!(pollError.response && pollError.response.status === 404 && (overallProgress === 'cancelled' || overallProgress === 'cleaning'))) {
-                 throw pollError;
+              throw pollError;
             } else {
-                console.warn("Polling detenido, audio no encontrado (posiblemente después de cleanup/cancel).");
+              console.warn("Polling detenido, audio no encontrado (posiblemente después de cleanup/cancel).");
             }
           }
         }, 5000);
@@ -209,25 +217,25 @@ function FileSystemSimulator() {
   };
 
   const handleCancelAndCleanup = async () => {
-    const currentAudioIdToClean = audioId; 
+    const currentAudioIdToClean = audioId;
     if (pollingIntervalId) { clearInterval(pollingIntervalId); setPollingIntervalId(null); }
-    
-    resetState('cancelled'); 
+
+    resetState('cancelled');
     setCurrentError(null);
 
     if (currentAudioIdToClean) {
-      setIsLoading(true); 
+      setIsLoading(true);
       setOverallProgress('cleaning');
       try {
         await cleanupAudio(currentAudioIdToClean);
         console.log(`Limpieza solicitada para audio ID: ${currentAudioIdToClean}`);
-        setOverallProgress('cancelled'); 
+        setOverallProgress('cancelled');
       } catch (error) {
         console.error("Error al limpiar el audio en el servidor:", error);
         setCurrentError("Error al limpiar los archivos del servidor.");
-        setOverallProgress('failed_cleanup'); 
-      } finally { 
-        setIsLoading(false); 
+        setOverallProgress('failed_cleanup');
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -237,7 +245,7 @@ function FileSystemSimulator() {
     addFileToSimulatedFS(outputFileName, transcriptionData.complete_transcription);
   };
 
- const getStatusInfo = (status) => {
+  const getStatusInfo = (status) => {
     switch (status) {
       case 'uploading': return { text: "Subiendo audio...", icon: AiOutlineLoading3Quarters, className: "status-progress status-uploading" };
       case 'processing_audio': return { text: `Procesando... (Etapa: ${currentProcessStatus || 'iniciando'})`, icon: AiOutlineLoading3Quarters, className: "status-progress status-processing" };
@@ -250,7 +258,7 @@ function FileSystemSimulator() {
       default: return { text: "Selecciona un archivo de audio.", icon: null, className: "status-idle" };
     }
   };
-  
+
   const currentStatusInfo = getStatusInfo(overallProgress);
   const IconComponent = currentStatusInfo.icon;
 
@@ -265,8 +273,8 @@ function FileSystemSimulator() {
         <section className="fss-section">
           <h2 className="fss-section-title">1. Cargar Archivos</h2>
           <div className="fss-upload-grid">
-            {/* ... (código de áreas de carga sin cambios) ... */}
-             <div className="fss-upload-area-wrapper">
+            {/* Carga de Audio */}
+            <div className="fss-upload-area-wrapper">
               <input
                 ref={audioInputRef}
                 type="file"
@@ -295,22 +303,23 @@ function FileSystemSimulator() {
                 )}
               </label>
             </div>
+            {/* Carga de PDF */}
             <div className="fss-upload-area-wrapper">
-               <input
-                  ref={pdfInputRef}
-                  type="file"
-                  accept=".pdf,.txt,.doc,.docx"
-                  onChange={(e) => e.target.files && e.target.files.length > 0 && handlePdfFileSelect(e.target.files[0])}
-                  className="fss-file-input"
-                  id="pdf-upload-input"
-                  disabled={isLoading}
-                />
+              <input
+                ref={pdfInputRef}
+                type="file"
+                accept=".pdf,.txt,.doc,.docx"
+                onChange={(e) => e.target.files && e.target.files.length > 0 && handlePdfFileSelect(e.target.files[0])}
+                className="fss-file-input"
+                id="pdf-upload-input"
+                disabled={isLoading}
+              />
               <label
                 htmlFor="pdf-upload-input"
-                 className={`fss-upload-area ${isLoading ? "disabled" : ""} ${pdfFile ? "has-file" : "type-document"}`}
+                className={`fss-upload-area ${isLoading ? "disabled" : ""} ${pdfFile ? "has-file" : "type-document"}`}
               >
                 {pdfFile ? (
-                   <>
+                  <>
                     <FaCheckCircle className="fss-upload-icon-status success" />
                     <p className="fss-upload-filename">{pdfFile.name}</p>
                     <p className="fss-upload-filesize">{Math.round(pdfFile.size / 1024)} KB</p>
@@ -327,29 +336,46 @@ function FileSystemSimulator() {
           </div>
         </section>
 
-        {/* NUEVO CONTENEDOR PARA ACCIONES Y ESTADO */}
         <div className="fss-actions-and-status-container">
           <section className="fss-section fss-actions-section">
-             <h2 className="fss-section-title">2. Iniciar Proceso</h2>
-            <div className="fss-actions-buttons-wrapper"> {/* Envoltorio solo para botones */}
+            <h2 className="fss-section-title">2. Iniciar Proceso</h2>
+
+            {/* Opción de Fallback */}
+            <div className="fss-fallback-option"> {/* Usaremos este contenedor */}
+              <input
+                type="checkbox"
+                id="use-fallback-checkbox"
+                checked={useFallback}
+                onChange={(e) => setUseFallback(e.target.checked)}
+                disabled={isLoading || !audioFile || (overallProgress && !['idle', 'failed', 'cancelled', 'failed_cleanup'].includes(overallProgress))}
+                className="fss-fallback-checkbox-input" // Nueva clase para el input
+              />
+              <label htmlFor="use-fallback-checkbox" className="fss-fallback-checkbox-label"> {/* Nueva clase para el label */}
+                {/* El texto del label puede o no estar visible dependiendo del diseño final del switch */}
+                <span className="fss-fallback-switch-ui"></span> {/* Elemento para el UI del switch */}
+                Usar IA Avanzada (más lento/costoso) {/* Texto descriptivo */}
+              </label>
+            </div>
+
+            <div className="fss-actions-buttons-wrapper">
               <button
                 onClick={startAudioProcessingFlow}
                 disabled={!audioFile || isLoading || (overallProgress && !['idle', 'failed', 'cancelled', 'failed_cleanup'].includes(overallProgress))}
                 className="fss-button fss-button-primary"
               >
-                {isLoading && ['uploading','processing_audio','transcribing'].includes(overallProgress) ? (
+                {isLoading && ['uploading', 'processing_audio', 'transcribing'].includes(overallProgress) ? (
                   <AiOutlineLoading3Quarters className="fss-icon-prefix loading-animate" />
                 ) : (
                   <FiUpload className="fss-icon-prefix" />
                 )}
-                {isLoading && ['uploading','processing_audio','transcribing'].includes(overallProgress) ? 'Procesando...' : 'Iniciar Transcripción'}
+                {isLoading && ['uploading', 'processing_audio', 'transcribing'].includes(overallProgress) ? 'Procesando...' : 'Iniciar Transcripción'}
               </button>
               <button
                 onClick={handleCancelAndCleanup}
                 disabled={(!audioFile && !audioId) || (isLoading && overallProgress === 'cleaning')}
                 className="fss-button fss-button-secondary"
               >
-                 {isLoading && overallProgress === 'cleaning' ? (
+                {isLoading && overallProgress === 'cleaning' ? (
                   <AiOutlineLoading3Quarters className="fss-icon-prefix loading-animate" />
                 ) : (
                   <MdCancel className="fss-icon-prefix" />
@@ -359,11 +385,10 @@ function FileSystemSimulator() {
             </div>
           </section>
 
-          {/* La sección de Estado ahora está dentro del mismo contenedor flex/grid */}
           {(overallProgress && overallProgress !== 'idle' || currentError) && (
-            <section className="fss-section fss-status-results-section"> {/* Nueva clase para control de ancho */}
-              <h2 className="fss-section-title fss-status-title-inline">3. Estado</h2> {/* Título opcional para estado */}
-              
+            <section className="fss-section fss-status-results-section">
+              <h2 className="fss-section-title fss-status-title-inline">3. Estado</h2>
+
               <div className={`fss-status-banner ${currentStatusInfo.className}`}>
                 {IconComponent && <IconComponent className={`fss-icon-prefix ${isLoading && !['completed', 'failed', 'cancelled', 'failed_cleanup', 'idle'].includes(overallProgress) ? 'loading-animate' : ''}`} />}
                 <span>{currentStatusInfo.text}</span>
@@ -380,12 +405,11 @@ function FileSystemSimulator() {
               )}
             </section>
           )}
-        </div> {/* Fin de fss-actions-and-status-container */}
-        
-        {/* La sección de resultados de transcripción y guardado permanece separada si se completa */}
+        </div>
+
         {overallProgress === 'completed' && transcriptionData && transcriptionData.complete_transcription && (
-          <section className="fss-section fss-completed-results-section"> {/* Nueva clase */}
-             <h2 className="fss-section-title">Resultados de la Transcripción</h2>
+          <section className="fss-section fss-completed-results-section">
+            <h2 className="fss-section-title">Resultados de la Transcripción</h2>
             <div className="fss-results-container">
               <h3 className="fss-results-subtitle">Transcripción Completa:</h3>
               <div className="fss-transcription-output">
