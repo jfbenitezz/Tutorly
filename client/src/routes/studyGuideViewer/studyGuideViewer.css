@@ -1,26 +1,201 @@
-.guideViewer {
-    background: #1e1e1e;
-    padding: 1rem;
-    border-radius: 10px;
-    max-width: 600px;
-    margin: 1rem auto;
-  }
-  
-  .guideViewer pre {
-    white-space: pre-wrap;
-    font-family: monospace;
-    background: #2d2d2d;
-    padding: 1rem;
-    border: 1px solid #444;
+/* studyGuideViewer.css */
+.sg-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #2c2937; /* Fondo oscuro */
+  color: #e3e6f0;           /* Texto claro */
+  border-radius: 16px;
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15), 0 5px 15px -5px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sg-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #4a4658;
+}
+
+.sg-header-icon {
+  font-size: 2.5rem;
+  color: #788bff; /* Azul del botón primario */
+  margin-right: 1rem;
+}
+
+.sg-header h1 {
+  font-size: 1.75rem;
+  color: #ffffff;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sg-section {
+  margin-bottom: 2.5rem;
+}
+.sg-section:last-child {
+  margin-bottom: 0;
+}
+
+.sg-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #4a4658;
+}
+
+.sg-input-section h4, .sg-preview-section h4, .sg-preview-section h5 {
+  font-size: 1.1rem;
+  color: #e3e6f0;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+.sg-preview-section h5 {
+  font-size: 1rem;
+  color: #c7c3d7;
+  margin-top: 1rem;
+}
+
+
+.sg-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.sg-form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #d1d5db;
+  margin-bottom: 0.5rem;
+}
+
+.sg-input,
+.sg-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #524f63;
+  border-radius: 8px;
+  background-color: #3a374a; /* Fondo oscuro para inputs */
+  color: #e3e6f0;          /* Texto claro en inputs */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+  line-height: 1.5;
+}
+.sg-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.sg-input:focus,
+.sg-textarea:focus {
+  outline: none;
+  border-color: #788bff; 
+  box-shadow: 0 0 0 3px rgba(120, 139, 255, 0.25);
+}
+
+.sg-preview-section {
+    background-color: #3a374a;
+    padding: 1.5rem;
     border-radius: 8px;
-  }
-  
-  .guideViewer button {
+    border: 1px solid #4a4658;
+    margin-bottom: 1.5rem;
+}
+.sg-preview-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+.sg-preview-list {
+    list-style: disc;
+    margin-left: 1.5rem;
+    padding-left: 0.5rem;
+    color: #d1d5db;
+}
+.sg-preview-list li {
+    margin-bottom: 0.4rem;
+}
+.sg-preview-notes {
+    background-color: #2c2937;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #403d4e;
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9rem;
+    color: #c7c3d7;
+    line-height: 1.6;
+}
+
+
+.sg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem; 
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+  text-decoration: none; 
+}
+.sg-button:active:not(:disabled) { transform: translateY(1px); opacity: 0.9; }
+
+.sg-button-primary {
+  background-color: #788bff; 
+  color: #ffffff; 
+  box-shadow: 0 4px 12px -2px rgba(120, 139, 255, 0.4);
+}
+.sg-button-primary:hover:not(:disabled) { background-color: #6a7de8; }
+.sg-button-primary:disabled { background-color: #535d8f; color: #9a96ac; cursor: not-allowed; box-shadow: none; }
+
+.sg-button-secondary { 
+  background-color: #4a4658; 
+  color: #e3e6f0;    
+  border-color: #5f5b70;
+}
+.sg-button-secondary:hover:not(:disabled) { background-color: #5f5b70; }
+.sg-button-secondary:disabled { background-color: #3a374a; color: #817d91; cursor: not-allowed; border-color: #3a374a; }
+
+.sg-button-edit {
+    background-color: transparent;
+    color: #a0aec0;
+    border: 1px solid #524f63;
     margin-top: 1rem;
-    padding: 8px 16px;
-    border: none;
-    background: #005f99;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 0.6rem 1.2rem;
+}
+.sg-button-edit:hover:not(:disabled) {
+    background-color: #3a374a;
+    color: #e3e6f0;
+}
+
+
+.sg-icon-prefix {
+  margin-right: 0.65rem;
+  font-size: 1.1em; 
+  vertical-align: -0.125em; 
+}
+
+.sg-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.sg-button-group .sg-button {
+  flex-grow: 1;
+}
+@media (min-width: 600px) {
+  .sg-button-group .sg-button {
+    flex-grow: 0; /* No crecen tanto si hay espacio */
   }
+}
