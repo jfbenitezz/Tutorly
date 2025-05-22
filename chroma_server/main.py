@@ -1,7 +1,7 @@
 # main.py
 
 from fastapi import FastAPI, UploadFile, File, Query
-from chromadb_utils import extract_chunks_from_pdf, index_chunks, query_text, retrieve_schema, populate_schema_with_content
+from chromadb_utils import client, extract_chunks_from_pdf, index_chunks, query_text, retrieve_schema, populate_schema_with_content
 import os
 import uuid
 
@@ -51,6 +51,20 @@ async def get_schema_content(
             "status": "success",
             "populated_content": populated_schema
         }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    
+@app.delete("/flush_collection/")
+async def flush_collection(confirm: bool = Query(False, description="Must be True to execute")):
+    """Endpoint to completely clear the ChromaDB collection"""
+    if not confirm:
+        return {"status": "error", "message": "Add ?confirm=true to execute flush"}
+    
+    try:
+        client.delete_collection("e5-bibliography")
+        global collection
+        collection = client.get_or_create_collection("e5-bibliography")
+        return {"status": "success", "message": "Collection flushed and recreated"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 

@@ -31,7 +31,7 @@ model = SentenceTransformer("intfloat/multilingual-e5-small")
 nlp = spacy.load("es_core_news_sm")
 
 # ---------- 1. Extract and Chunk Text with Metadata ----------
-def extract_chunks_from_pdf(file_path):
+def extract_chunks_from_pdf(file_path, MAX_SENTENCES_PER_CHUNK=5):
     logging.info(f"Extracting chunks from: {file_path}")
     reader = PyPDF2.PdfReader(file_path)
     chunks = []
@@ -46,16 +46,21 @@ def extract_chunks_from_pdf(file_path):
 
         for j, para in enumerate(paragraphs):
             doc = nlp(para)
-            sentence_chunk = " ".join([sent.text.strip() for sent in doc.sents])
-            chunks.append({
-                "text": sentence_chunk,
-                "metadata": {
-                    "source": file_path,
-                    "page": i + 1,
-                    "para_index": j,
-                    "citation": f"{base_name}, 2024"
-                }
-            })
+            sentences = [sent.text.strip() for sent in doc.sents]
+
+            # Split into chunks of MAX_SENTENCES_PER_CHUNK
+            for k in range(0, len(sentences), MAX_SENTENCES_PER_CHUNK):
+                chunk_sentences = sentences[k:k + MAX_SENTENCES_PER_CHUNK]
+                chunks.append({
+                    "text": " ".join(chunk_sentences),
+                    "metadata": {
+                        "source": file_path,
+                        "page": i + 1,
+                        "para_index": j,
+                        "chunk_index": k // MAX_SENTENCES_PER_CHUNK,
+                        "citation": f"{base_name}, 2024"
+                    }
+                })
     logging.info(f"Extracted {len(chunks)} chunks from {file_path}")
     return chunks
 
@@ -151,31 +156,27 @@ def parse_text_schema(text: str) -> List[Dict]:
     return root['subsections']
 
 def populate_schema_with_content(schema_data: dict, top_k: int = 3) -> dict:
-    """Populate schema with ChromaDB results while maintaining numbering"""
+    """Recursively populate schema with ChromaDB results"""
     populated = {}
     
-    def process_node(node, parent_numbers=""):
-        # Build full numbering path (e.g., "1.1.2")
-        current_number = f"{parent_numbers}.{node['number']}" if parent_numbers else node['number']
+    def process_node(node, path=""):
+        # Build the hierarchical path
+        current_path = f"{path}/{node['title']}" if path else node['title']
         
-        # Create the display key with numbers (e.g., "1.1.2 Objetivo")
-        display_key = f"{current_number} {node['title']}"
-        
-        # Query ChromaDB
+        # Query ChromaDB using the clean title (without numbers)
         results = query_text(node['title'], top_k=top_k)
         
         # Store results with both text and citations
-        populated[display_key] = [
-            {
-                "text": text.replace("passage: ", "").strip(),  # Clean up ChromaDB output
-                "citation": citation
-            } for text, citation in results
+        populated[current_path] = [
+            {"text": text, "citation": citation}
+            for text, citation in results
         ]
         
-        # Process subsections
+        # Process all subsections recursively
         for subsection in node.get('subsections', []):
-            process_node(subsection, current_number)
+            process_node(subsection, current_path)
     
+    # Start processing from top-level sections
     for section in schema_data['sections']:
         process_node(section)
     

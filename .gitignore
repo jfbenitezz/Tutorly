@@ -25,7 +25,4 @@ dist-ssr
 *.sw?
 
 chroma_db/
-transcription_server/output
-transcription_server/transcriptions
-transcription_server/audios
 */__pycache__
