@@ -6,7 +6,11 @@ import chromadb
 from chromadb.config import Settings
 import spacy
 import os
+import re
 import logging
+import requests
+from typing import Dict, List, Tuple
+from collections import OrderedDict
 
 # Configure logging
 logging.basicConfig(
@@ -70,7 +74,7 @@ def index_chunks(chunks):
 
 # ---------- 3. Citation Formatter ----------
 def cite_apa(meta):
-    return f"{meta['citation']} (p. {meta['page']})"
+    return f"Extracted from {meta['citation']} (p. {meta['page']})"
 
 # ---------- 4. Query Interface with Citation-Ready Output ----------
 def query_text(query, top_k=3, page_start=None, page_end=None):
@@ -96,3 +100,83 @@ def query_text(query, top_k=3, page_start=None, page_end=None):
         (doc, cite_apa(meta))
         for doc, meta in zip(results['documents'][0], results['metadatas'][0])
     ]
+
+# ---------- 5. Retrieve Schema from Another Server ----------
+schemas_server_url = "http://127.0.0.1:8000/"
+def retrieve_schema(filename: str) -> Dict[str, str]:
+    """Retrieve schema from another server"""
+    try:
+        schema_url = f"{schemas_server_url}get_schema/{filename}"
+        print(f"Retrieving schema from: {schema_url}")
+        response = requests.get(schema_url)
+        response.raise_for_status()
+        
+        # Handle the response format you showed
+        if isinstance(response.json(), dict) and 'schema' in response.json():
+            return {'sections': parse_text_schema(response.json()['schema'])}
+        return response.json()
+    except Exception as e:
+        logging.error(f"Error retrieving schema: {str(e)}")
+        return {}
+    
+def parse_text_schema(text: str) -> List[Dict]:
+    """Parse numbered hierarchy and return clean structure without numbers in titles"""
+    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    root = {'title': 'Root', 'subsections': []}
+    stack = [(root, -1)]  # (node, current_depth)
+    
+    for line in lines:
+        # Match numbered items (1., 1.1., etc.)
+        match = re.match(r'^(\d+(?:\.\d+)*)\.\s*(.*)', line)
+        if not match:
+            continue
+            
+        number_part, title = match.groups()
+        depth = number_part.count('.')
+        
+        # Find appropriate parent
+        while stack[-1][1] >= depth:
+            stack.pop()
+            
+        # Create new node with clean title
+        parent = stack[-1][0]
+        node = {
+            'title': title.strip(), 
+            'number': number_part,  # Keep original number for reference
+            'subsections': []
+        }
+        parent['subsections'].append(node)
+        stack.append((node, depth))
+    
+    return root['subsections']
+
+def populate_schema_with_content(schema_data: dict, top_k: int = 3) -> dict:
+    """Populate schema with ChromaDB results while maintaining numbering"""
+    populated = {}
+    
+    def process_node(node, parent_numbers=""):
+        # Build full numbering path (e.g., "1.1.2")
+        current_number = f"{parent_numbers}.{node['number']}" if parent_numbers else node['number']
+        
+        # Create the display key with numbers (e.g., "1.1.2 Objetivo")
+        display_key = f"{current_number} {node['title']}"
+        
+        # Query ChromaDB
+        results = query_text(node['title'], top_k=top_k)
+        
+        # Store results with both text and citations
+        populated[display_key] = [
+            {
+                "text": text.replace("passage: ", "").strip(),  # Clean up ChromaDB output
+                "citation": citation
+            } for text, citation in results
+        ]
+        
+        # Process subsections
+        for subsection in node.get('subsections', []):
+            process_node(subsection, current_number)
+    
+    for section in schema_data['sections']:
+        process_node(section)
+    
+    return populated
