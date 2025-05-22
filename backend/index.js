@@ -211,13 +211,15 @@ app.put("/api/chats/:id", ClerkExpressRequireAuth(), async (req, res) => {
 
 // Rutas proxy para el servidor de transcripción (Added)
 // 1. Subir audio
-app.post("/api/audio/upload", ClerkExpressRequireAuth(), upload.single("audio"), async (req, res) => {
+app.post("/api/audio/upload", ClerkExpressRequireAuth(), upload.single("file"), async (req, res) => { // Cambiado de "audio" a "file"
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No se proporcionó ningún archivo" });
     }
 
     const formData = new FormData();
+    // Cuando reenvías al servidor de transcripción, asegúrate de que el nombre del campo
+    // ("file" aquí) coincida con lo que espera el endpoint /upload de FastAPI.
     formData.append("file", fs.createReadStream(req.file.path), req.file.originalname);
 
     const response = await axios.post(`${TRANSCRIPTION_SERVER_URL}/upload`, formData, {
@@ -233,14 +235,18 @@ app.post("/api/audio/upload", ClerkExpressRequireAuth(), upload.single("audio"),
 
     res.json(response.data);
   } catch (error) {
-    console.error("Error al subir el audio:", error.response ? error.response.data : error.message);
+    console.error("Error al subir el audio (ruta /api/audio/upload):", error.response ? error.response.data : error.message);
     // Clean up the uploaded file in case of an error too
     if (req.file && req.file.path) {
-        fs.unlink(req.file.path, (err) => {
-            if (err) console.error("Error deleting uploaded file after error:", err);
+        fs.unlink(req.file.path, (errUnlink) => { // Usar un nombre de variable diferente para el error de unlink
+            if (errUnlink) console.error("Error deleting uploaded file after error:", errUnlink);
         });
     }
-    res.status(500).json({ error: "Error al subir el audio", details: error.message });
+    // Devuelve el error específico de la ruta en lugar de dejar que caiga al manejador global
+    // para dar más contexto si es posible.
+    const status = error.response ? error.response.status : 500;
+    const data = error.response ? error.response.data : { error: "Error interno al procesar la subida del audio", details: error.message };
+    res.status(status).json(data);
   }
 });
 
@@ -260,21 +266,25 @@ app.get("/api/audio/status/:audioId", ClerkExpressRequireAuth(), async (req, res
 app.post("/api/audio/process/:audioId", ClerkExpressRequireAuth(), async (req, res) => {
   try {
     const { audioId } = req.params;
+    console.log(`Backend: Procesando audio ${audioId} con cuerpo:`, req.body);
     const response = await axios.post(`${TRANSCRIPTION_SERVER_URL}/process/${audioId}`, req.body);
+    console.log(`Backend: Respuesta de FastAPI /process/${audioId}:`, response.data); // LOG DETALLADO
     res.json(response.data);
   } catch (error) {
-    console.error("Error al procesar el audio:", error.response ? error.response.data : error.message);
-    res.status(500).json({ error: "Error al procesar el audio", details: error.message });
+    console.error("Error al procesar el audio (backend):", error.response ? error.response.data : error.message);
+    const status = error.response ? error.response.status : 500;
+    const data = error.response ? error.response.data : { error: "Error al procesar el audio", details: error.message };
+    res.status(status).json(data);
   }
 });
 
 // 4. Transcribir un audio
 app.post("/api/audio/transcribe/:audioId", ClerkExpressRequireAuth(), async (req, res) => {
   try {
-    const { audio_id } = req.params;
+    const { audioId } = req.params;
     const { use_fallback } = req.query; // TOMA 'use_fallback' DE LOS QUERY PARAMS DE ESTA RUTA
 
-    let transcriptionServiceUrl = `${TRANSCRIPTION_SERVER_URL}/transcribe/${audio_id}`;
+    let transcriptionServiceUrl = `${TRANSCRIPTION_SERVER_URL}/transcribe/${audioId}`;
 
     if (use_fallback !== undefined) {
       const fallbackValue = String(use_fallback).toLowerCase() === 'true';
