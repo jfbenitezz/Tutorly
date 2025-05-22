@@ -1,154 +1,260 @@
-.fs-container {
-  padding: 2rem;
-  max-width: 1000px;
-  margin: auto;
-  font-family: "Segoe UI", sans-serif;
+/* fileSystemSimulator.css */
+
+/* ... (Estilos anteriores del .fss-container hasta .fss-icon-prefix sin cambios) ... */
+.fss-container {
+  background-color: #2c2937; 
+  border-radius: 16px;    
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15), 0 5px 15px -5px rgba(0, 0, 0, 0.1); 
+  padding: 2rem 2.5rem;   
+  margin: 1rem; 
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
 }
 
-.fs-container h2 {
-  font-size: 1.5rem;
+.fss-header {
+  text-align: left; 
+  margin-bottom: 2.5rem; 
+  padding-bottom: 1.5rem; 
+  border-bottom: 1px solid #4a4658; 
+}
+
+.fss-header-main-title { 
+  font-size: 1.75rem;  
+  color: #ffffff;     
+  font-weight: 700;   
+  margin-bottom: 0.35rem;
+}
+
+.fss-header-subtitle { 
+  font-size: 0.95rem;
+  color: #c7c3d7;     
+  font-weight: 400;
+}
+
+.fss-content-wrapper { 
+  flex-grow: 1; 
+}
+
+.fss-section {
+  margin-bottom: 2.5rem;
+}
+.fss-section:last-child {
+  margin-bottom: 0;
+}
+
+.fss-section-title { 
+  font-size: 1.1rem; 
+  font-weight: 600;
+  color: #ffffff;    
   margin-bottom: 1.5rem;
 }
 
-.class-folder {
-  background: #a6a6a7;
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+.fss-icon-prefix {
+  margin-right: 0.6rem;
+  font-size: 1.05em; 
+  vertical-align: -0.125em; 
 }
 
-.class-folder h3 {
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.fs-grid {
+/* Upload Area (sin cambios) */
+.fss-upload-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+  gap: 1.75rem; 
+}
+.fss-file-input { width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;}
+.fss-upload-area { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 10rem; padding: 1.5rem; border: 2px dashed #524f63; border-radius: 12px; cursor: pointer; text-align: center; transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease; }
+.fss-upload-area.type-audio { background-color: #e3f2fd; border-color: #a0cff8; }
+.fss-upload-area.type-audio:hover:not(.disabled) { background-color: #d1e9fa; border-color: #7dc0f5; transform: translateY(-2px); }
+.fss-upload-area.type-document { background-color: #f3e5f5; border-color: #e6c8f3; }
+.fss-upload-area.type-document:hover:not(.disabled) { background-color: #efdbf0; border-color: #d9b0ea; transform: translateY(-2px); }
+.fss-upload-area.has-file { border-color: #59d4a0; background-color: #e6fff4; }
+.fss-upload-area.disabled { opacity: 0.5; cursor: not-allowed; background-color: #3a374a; border-color: #4a4658; }
+.fss-upload-area.disabled .fss-upload-prompt,
+.fss-upload-area.disabled .fss-upload-hint { color: #9a96ac; }
+.fss-upload-area.disabled:hover { transform: none; }
+.fss-upload-icon-main { font-size: 2.25rem; margin-bottom: 0.75rem; }
+.fss-upload-icon-main.type-audio { color: #4a7cf6; } 
+.fss-upload-icon-main.type-document { color: #9360f7; } 
+.fss-upload-icon-status.success { font-size: 2.25rem; color: #28a745; margin-bottom: 0.75rem; }
+.fss-upload-prompt { font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.25rem; } 
+.fss-upload-hint { font-size: 0.75rem; color: #555; } 
+.fss-upload-filename { font-size: 0.85rem; font-weight: 500; color: #28a745; word-break: break-all; }
+.fss-upload-filesize { font-size: 0.7rem; color: #218838; }
+
+
+/* NUEVO: Contenedor para Acciones y Estado lado a lado */
+.fss-actions-and-status-container {
+  display: flex;
+  flex-wrap: wrap; /* Permitir que se envuelva si no hay suficiente espacio */
+  gap: 2rem; /* Espacio entre la sección de acciones y la de estado */
+  align-items: flex-start; /* Alinear elementos al inicio de su eje transversal */
+  border-top: 1px solid #4a4658; /* Línea divisoria superior */
+  padding-top: 1.75rem; /* Espacio sobre el contenido */
+  margin-top: 1.75rem; /* Espacio desde la sección de carga */
 }
 
-.fs-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  position: relative;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
+.fss-actions-section {
+  flex: 1 1 300px; /* Permite crecer, base de 300px, puede encoger */
+  margin-bottom: 0; /* Quitamos margen inferior ya que está en el contenedor flex */
+  padding-top: 0;   /* Quitamos padding top ya que está en el contenedor flex */
+  border-top: none; /* Quitamos borde superior ya que está en el contenedor flex */
 }
 
-.fs-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+.fss-status-results-section {
+  flex: 1 1 300px; /* Permite crecer, base de 300px, puede encoger */
+  margin-bottom: 0; /* Quitamos margen inferior */
+  min-width: 280px; /* Ancho mínimo para que el banner de estado no se comprima demasiado */
+}
+.fss-status-title-inline { /* Título opcional para el estado, si quieres que sea menos prominente */
+    /* font-size: 1rem; */
+    /* margin-bottom: 0.75rem; */
+    /* Podrías incluso ocultarlo si el banner es suficiente: display: none; */
 }
 
-.fs-icon {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 10px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+
+.fss-actions-buttons-wrapper { /* Nuevo envoltorio solo para los botones */
+  display: flex;
+  flex-wrap: wrap; 
+  gap: 1rem; 
 }
 
-/* Iconos por tipo */
-.fs-icon.audio {
-  background-image: url("/icons/audio.svg");
-}
-.fs-icon.pdf {
-  background-image: url("/icons/pdf.svg");
-}
-.fs-icon.video {
-  background-image: url("/icons/video.svg");
-}
-.fs-icon.image {
-  background-image: url("/icons/image.svg");
-}
-
-.fs-name {
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: black;
-}
-
-.fs-menu {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 1.2rem;
-  color: #999;
-}
-/* Botón de procesar */
-.process-btn {
-  margin-top: 1rem;
-  padding: 10px 20px;
-  background: #0077cc;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.3s ease;
-}
-
-.process-btn:hover {
-  background: #005fa3;
-}
-
-/* Progreso */
-.progress-box {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #fff;
-  border: 1px solid #ddd;
+.fss-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem; /* Un poco menos de padding horizontal para botones más compactos */
+  font-size: 0.875rem; /* Texto ligeramente más pequeño */
+  font-weight: 600;
   border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+  text-decoration: none; 
+  flex-grow: 1; /* Crece para llenar el espacio en fss-actions-buttons-wrapper */
 }
 
-.step {
-  font-size: 0.9rem;
-  padding: 6px;
-  border-left: 4px solid #ccc;
-  margin: 6px 0;
-  padding-left: 10px;
-  background-color: #eee;
-  border-radius: 4px;
-  color: rgb(2, 2, 2);
+@media (min-width: 450px) { /* Cuando hay un poco más de espacio, los botones no necesitan crecer tanto */
+    .fss-actions-buttons-wrapper .fss-button {
+        flex-grow: 0;
+        min-width: 160px; /* Ancho mínimo para mejor apariencia */
+    }
 }
 
-.step.current {
-  border-left-color: #0077cc;
-  background-color: #e3f2fd;
-  font-weight: bold;
+
+.fss-button:active:not(:disabled) { transform: translateY(1px); opacity: 0.9; }
+
+/* Colores de botones (sin cambios) */
+.fss-button-primary { background-color: #788bff; color: #ffffff; box-shadow: 0 4px 12px -2px rgba(120, 139, 255, 0.4); }
+.fss-button-primary:hover:not(:disabled) { background-color: #6a7de8; }
+.fss-button-primary:disabled { background-color: #535d8f; color: #9a96ac; cursor: not-allowed; box-shadow: none; }
+.fss-button-secondary { background-color: #D1D5DB; color: #2c2937; border-color: transparent; }
+.fss-button-secondary:hover:not(:disabled) { background-color: #c0c4c9; }
+.fss-button-secondary:disabled { background-color: #4a4658; color: #817d91; cursor: not-allowed; box-shadow: none; }
+.fss-button-success { background-color: #34D399; color: #1f2937; box-shadow: 0 4px 12px -2px rgba(52, 211, 153, 0.4); }
+.fss-button-success:hover:not(:disabled) { background-color: #2ac489; }
+.fss-button-success:disabled { background-color: #526e70; color: #9a96ac; cursor: not-allowed; box-shadow: none; }
+
+
+.loading-animate { animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Status Banner - ajustar para que se vea bien al lado */
+.fss-status-banner {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem; /* Más compacto */
+  margin-bottom: 1rem; /* Menos margen si está al lado */
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 0.85rem; /* Texto más pequeño para banner compacto */
+  font-weight: 500;
+  color: #e5e7eb; 
+  min-height: 40px; /* Altura mínima para alinearse mejor con botones */
+  box-sizing: border-box;
+}
+/* Colores de estado (sin cambios) */
+.status-idle { background-color: #3a374a; border-color: #4a4658; color: #c7c3d7; }
+.status-progress { background-color: #3b4b7f; border-color: #4e5f9f; color: #d1d5ff; } 
+.status-uploading { background-color: #3b4b7f; border-color: #4e5f9f; color: #d1d5ff;}
+.status-processing { background-color: #413b7f; border-color: #534e9f; color: #d9d5ff;} 
+.status-transcribing { background-color: #573b7f; border-color: #6b4e9f; color: #e6d5ff;} 
+.status-success { background-color: #1e5e42; border-color: #2a7f59; color: #c6f6d5; } 
+.status-error { background-color: #7f2a2a; border-color: #9f3a3a; color: #fed7d7; } 
+.status-neutral { background-color: #4a4658; border-color: #5f5b70; color: #c7c3d7; } 
+.status-cleaning { background-color: #7f5f2a; border-color: #9f773a; color: #feebc8;} 
+
+
+.fss-error-box {
+  display: flex; align-items: flex-start; padding: 0.75rem; margin-bottom: 1rem;
+  background-color: #7f2a2a; border: 1px solid #9f3a3a; border-radius: 8px; color: #fed7d7; 
+  font-size: 0.85rem; /* Más compacto */
+}
+.fss-error-box .fss-icon-prefix { font-size: 1.1rem; margin-top: 0.1rem; color: #fed7d7;}
+.fss-error-title { font-weight: 600; margin-bottom: 0.15rem; }
+
+/* Sección de resultados de transcripción completada (permanece abajo) */
+.fss-completed-results-section {
+    margin-top: 2rem; /* Asegurar espacio si el estado estaba al lado */
+    border-top: 1px solid #4a4658;
+    padding-top: 1.75rem;
+}
+.fss-results-container { margin-top: 0; } /* El contenedor interno no necesita más margen superior */
+.fss-results-subtitle { font-size: 1.05rem; font-weight: 600; color: #ffffff; margin-bottom: 0.7rem; }
+
+.fss-transcription-output { 
+  background-color: #e3e6f0; border: 1px solid #524f63; 
+  border-radius: 8px;
+  padding: 1rem; max-height: 22rem; overflow-y: auto;
+  box-shadow: inset 0 1px 3px 0 rgba(0,0,0,0.1);
+}
+.fss-transcription-output pre {
+  margin: 0; white-space: pre-wrap; word-wrap: break-word;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 0.875rem; line-height: 1.65; color: #18191e; 
 }
 
-.step.done {
-  border-left-color: #28a745;
-  background-color: #e6f4ea;
-  text-decoration: line-through;
+/* Save Form (sin cambios) */
+.fss-save-form-container { margin-top: 2rem; padding: 1.5rem; background-color: #3a374a; border: 1px solid #4a4658; border-radius: 10px; }
+.fss-save-form-title { font-size: 1rem; font-weight: 600; color: #ffffff; margin-bottom: 1.25rem; display: flex; align-items: center; }
+.fss-save-form-title .fss-icon-prefix { color: #788bff; } 
+.fss-form-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+.fss-form-group { flex: 1 1 auto; display: flex; flex-direction: column; }
+.fss-form-group.full-width { flex-basis: 100%; }
+@media (min-width: 640px) {
+    .fss-form-group.full-width { flex-grow: 1; }
+    .fss-save-form-container .fss-button-success { flex-shrink: 0; }
 }
+.fss-form-group label { font-size: 0.8rem; font-weight: 500; color: #d1d5db; margin-bottom: 0.35rem; }
+.fss-form-input { width: 100%; padding: 0.7rem 0.9rem; font-size: 0.9rem; border: 1px solid #524f63; border-radius: 6px; background-color: #e3e6f0; color: #18191e; transition: border-color 0.2s ease, box-shadow 0.2s ease; box-sizing: border-box; }
+.fss-form-input:focus { outline: none; border-color: #788bff; box-shadow: 0 0 0 3px rgba(120, 139, 255, 0.25); }
 
-.dot-loader {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid #0077cc;
-  border-top: 2px solid transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-left: 10px;
-  vertical-align: middle;
-}
+/* Media Queries */
+@media (max-width: 768px) {
+  .fss-container { margin: 0.5rem; padding: 1.5rem; border-radius: 8px; }
+  .fss-header { margin-bottom: 1.5rem; padding-bottom: 1rem; }
+  .fss-header-main-title { font-size: 1.5rem; }
+  .fss-header-subtitle { font-size: 0.9rem; }
+  .fss-section-title { font-size: 1.05rem; }
+  .fss-upload-grid { grid-template-columns: 1fr; } 
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+  /* Ajuste para que acciones y estado vayan uno debajo del otro en móviles */
+  .fss-actions-and-status-container {
+    flex-direction: column; /* Apilar en vertical */
+    align-items: stretch; /* Que los hijos tomen el ancho completo */
   }
-}
+  .fss-actions-section, .fss-status-results-section {
+    flex-basis: auto; /* Resetear flex-basis */
+    width: 100%;
+  }
+  .fss-status-results-section {
+    margin-top: 1.5rem; /* Espacio si se apilan */
+  }
+  /* Fin de ajuste para móviles */
 
+  .fss-form-row { flex-direction: column; align-items: stretch; }
+  .fss-form-row .fss-button-success { width: 100%; margin-top: 0.75rem; }
+  .fss-actions-buttons-wrapper { flex-direction: column; } /* Botones de acción también en columna */
+  .fss-actions-buttons-wrapper .fss-button { width: 100%; }
+}
