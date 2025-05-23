@@ -1,199 +1,44 @@
+// components/TranscriptPlayer.jsx
 import { useEffect, useRef, useState } from "react";
-import "./transcriptPlayer.css"; // Asegúrate que este archivo CSS existe y está enlazado
+import "./transcriptPlayer.css";
 
-const TranscriptPlayer = ({ audioId, processedAudioPath, originalFilenameFromProps, useFallbackForTranscription }) => {
+const transcriptMock = [
+  { time: 0, text: "...eh... que subieron. Eh eh... usar un sin sin ponerle colores encima, porque como no tienes categoras. Por ejemplo, ponlo de trasplante, si lo quieres mostrar algo para ver si hay diferencia entre los delitos que comenten los hombres y comenten las mujeres. Entonces, sacas el gnero de ah. Modificas con YUMAP y coloreas cada punto por gnero para ver si hay delitos que cometen ms hombres que las mujeres y si hay caractersticas en los datos, cierto delito. Y y para ver si se separa, o sea, para si te queda aqu el grupito de hombres y el grupito de mujeres con las caractersticas que tiene. O sea, ah sera, por ejemplo, por no s. No, lo s simplemente pues, retiras una Pero mira, yo dira que por el tipo de delito que es lo ms. O sea, no s, por ejemplo, narcotrfico. Entonces eh no no. O eh por si cojo delitos eh igual yo aqu puedo coger los yo esto voy a coger los diez que ms se cometen y los otros los voy a dividir en otros. A ver si me entienden lo que lo que yo trato de decir. Lo ms interesante aqu sera ver si t puedes perfilar a los que van a hacer un curso. Cmo haras eso o perfilar a los que van a a a hacer algo. Como ya tienes la informacin, t quitas esa variable de ah y hace clustering en YUMAP usando todas las dems. Y ah se te van a formar grupitos. Despus t colorearas buscando el tipo de delito. Entonces, si t ves que te queda un grupo solo con lo que diga narcotrfico para que te queda otro grupo solo con colores que diga extorsin, es porque s hay diferencias significativas entre las caractersticas de los que son narcotraficantes. Ese es el tipo de preguntas que le vas a hacer a la vida. Ahora tambin puedes hacer una pregunta, eso es de lo que se trata, una pregunta como esa. Ser que el gnero est, el gnero o sexo como le tengas ah ah en tu gnero? Ah, porque en tu mismo. Pero s, ah bueno, porque hay cuatro gneros, tienes razn. Ah s te toca cuatro. Entonces, retiras esas cuatro, verdad? Con el rgimen. Este es el ao del que cometieron el delito. Ao s, ao que cometieron el delito. Esta longitud y latitud, si eso te sirve para el mapa, pero si vas a hacer clustering no es buena idea. Tienes que ver porque se va a terminar simplemente creando un grupo de todos los que cometieron delito en Estados Unidos y Estados Unidos es muy grande, cmo va a esto te puede dar confusin. Al ao y mes. O sea, que cuando vaya a pasar el data set de haga uno, un group by que solamente tenga las columnas con las que voy a trabajar. Ese es el anlisis y probar si esas columnas se determinan algunas otras. En realidad eso es anlisis de correlacin. Se puede a ojo tambin se puede ver. Otra cosa interesante que podramos hacer tiene ms data informacin interesante. Mira, tienes ao y tienes meses. Yo eh bueno, ya sabes que estas no te agregan informacin, pero por ejemplo, cul es el mes del ao donde ms delitos se comenten? Entonces t puedes usar el resto, quitas, quitas ao porque ya no te interesa el ao. Cul es el mes en que ms delitos se cometen? Usar el resto de informacin para ver eh si s, informacin. O simplemente usar el tipo de delito. Y eh y ves para ver cmo se distribuyen los delitos a lo largo del ao. De pronto no hay un no hay, se viaja ms en diciembre porque necesita plata para el intercambio de Navidad. Entonces procura cometer un crimen. Eh, bueno, supongamos que s hay diferencias. Supongamos que s hay diferencias. Pues por ejemplo aqu voy a tener los delitos. Enero, febrero, marzo. Ah, bueno, aqu tendras entonces los meses. La frecuencia de y aqu tendras los delitos ya. S, entonces, cuatro colorcitos por narcotrfico, robo, s s. Se ubican los los puntos. Y yo luego ya decido si los coloreas esos puntos por por ejemplo, por gnero y ah se me iluminar y se ubicaran los, o por tipo de delito. Ah empieza, ah empiezas a sacar informacin de los datos. De eso es de lo que se trata. Esos son los anlisis que t ves en los artculos, lo que ves en en los reportes que se le hacen a las empresas. De eso es de lo que se trata. Bueno, djame, siguiente Bueno, gente, yo yo aqu ya qued claro, ahora me interesa que ustedes busquen su data set en mi computador. Busquen su data. Es Bueno, ya vamos clarito. Entonces, mi es el categrico categrico. S. Tiene? Entonces, tiene que buscar o cuantitativo cuantitativo o cualitativo cuantitativo, si es cuantitativo cuantitativo o cualitativo cuantitativo. No s. El primero en encontrar se queda con ese y el otro le toca el otro. Pero cmo se ve un cuantitativo, o sea, Cuantitativo cuantitativo es el qu, es nmero contra nmeros, cantidades contra cantidades. Cualitativo cuantitativo es qu es eh categoras contra candidatos. Por un valor numrico, un tipo de valor numrico continuo. No discreto, porque si es discreto es cualitativo. Entonces, vamos a empezar ac. Primero aqu. Ahora s yo ya s, esto se usa en anlisis bivariados. Creo que sale del tiempo. Lo que dice busca informacin, o sea y eso es para esto sirve, sirve o no? Bueno, est bien. Ah, eso lo tengo que hacer numrico. Necesito informacin de densidad." }
+  
+];
+
+const TranscriptPlayer = () => {
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const [formattedTranscript, setFormattedTranscript] = useState([]);
-  const [audioTitle, setAudioTitle] = useState("Cargando título...");
-  const [audioSrc, setAudioSrc] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [activeLine, setActiveLine] = useState(null);
 
   useEffect(() => {
-    if (audioId) {
-      // 1. Establecer el título del audio
-      setAudioTitle(originalFilenameFromProps || `Audio ID: ${audioId}`);
-
-      // 2. Construir la URL del audio para el reproductor
-      if (processedAudioPath) {
-        // processedAudioPath es algo como "output/AUDIO_ID_DEL_PROCESO/nombre_archivo_procesado.wav"
-        // o "output\AUDIO_ID_DEL_PROCESO\nombre_archivo_procesado.wav"
-        // Necesitamos extraer las partes para el proxy del backend
-        const pathParts = processedAudioPath.split(/[/|\\]/); // Manejar tanto / como \
-        if (pathParts.length >= 3 && pathParts[0].toLowerCase() === 'output') {
-          const fileSpecificAudioId = pathParts[1];
-          const relativeFilePath = pathParts.slice(2).join('/');
-          setAudioSrc(`/api/audio/file/${fileSpecificAudioId}/${relativeFilePath}`);
-        } else {
-          console.warn("[TranscriptPlayer] No se pudo parsear 'processedAudioPath' para la URL del audio:", processedAudioPath);
-          setError("No se pudo determinar la ruta del archivo de audio para reproducción.");
-        }
-      } else {
-        console.warn("[TranscriptPlayer] No se proporcionó 'processedAudioPath'.");
-        setError("No se proporcionó la ruta al archivo de audio procesado.");
+    const interval = setInterval(() => {
+      if (audioRef.current) {
+        setCurrentTime(audioRef.current.currentTime);
       }
+    }, 500);
 
-      // 3. Cargar la transcripción
-      const fetchTranscription = async () => {
-        setIsLoading(true);
-        setError(null);
-        // Asegúrate de que useFallbackForTranscription tenga un valor booleano definido
-        // Si no se pasa, puedes asumir un valor por defecto, por ejemplo, false.
-        const fallbackValue = typeof useFallbackForTranscription === 'boolean' ? useFallbackForTranscription : false;
-        const fetchUrl = `/api/audio/transcribe/${"0a7333ea-20f6-4a93-8ba8-34d80b6758f8"}?use_fallback=${fallbackValue}`;
-        
-        console.log("[TranscriptPlayer] Fetching transcription from URL:", fetchUrl);
+    return () => clearInterval(interval);
+  }, []);
 
-        try {
-          const response = await fetch(fetchUrl, {
-            method: "POST",
-            // No necesitas headers como Content-Type: application/json si el cuerpo está vacío
-            // y el backend no lo requiere explícitamente para este endpoint.
-          });
-
-          console.log("[TranscriptPlayer] Response OK:", response.ok, "Status:", response.status);
-
-          if (!response.ok) {
-            // Intenta parsear el error como JSON, pero ten un fallback si no es JSON
-            let errorDetail = `Error HTTP: ${response.status}`;
-            try {
-              const errorData = await response.json();
-              errorDetail = errorData.detail || errorData.error || errorDetail;
-            } catch (jsonError) {
-              // El cuerpo del error no era JSON, usa el status text o un mensaje genérico
-              errorDetail = response.statusText || errorDetail;
-              console.warn("[TranscriptPlayer] El cuerpo del error de la respuesta no era JSON.");
-            }
-            console.error("[TranscriptPlayer] Error data from response:", errorDetail);
-            throw new Error(errorDetail);
-          }
-          const data = await response.json(); //  AudioTranscriptionResponse
-          console.log("[TranscriptPlayer] Transcription data received:", data);
-          
-          if (data.segments && data.segments.length > 0) {
-            let cumulativeTime = 0;
-            const lines = data.segments.map(segment => {
-              const lineData = {
-                time: cumulativeTime,
-                text: segment.transcription,
-                duration: segment.duration_sec // Guardamos la duración por si es útil
-              };
-              cumulativeTime += segment.duration_sec;
-              return lineData;
-            });
-            setFormattedTranscript(lines);
-            console.log("[TranscriptPlayer] Formatted transcript from segments:", lines);
-          } else if (data.complete_transcription) {
-            // Si no hay segmentos pero sí una transcripción completa, la mostramos como una sola línea
-            const completeLine = [{ time: 0, text: data.complete_transcription, duration: audioRef.current?.duration || 0 }];
-            setFormattedTranscript(completeLine);
-            console.log("[TranscriptPlayer] Formatted transcript from complete_transcription:", completeLine);
-          } else {
-            setFormattedTranscript([]);
-            setError("No se encontraron segmentos de transcripción ni transcripción completa.");
-            console.warn("[TranscriptPlayer] No segments or complete_transcription found in data.");
-          }
-
-        } catch (err) {
-          setError(err.message);
-          console.error("[TranscriptPlayer] Fallo al cargar la transcripción:", err);
-          setFormattedTranscript([]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchTranscription();
-    } else {
-      // Resetear si no hay audioId
-      setAudioTitle("Sin audio seleccionado");
-      setAudioSrc("");
-      setFormattedTranscript([]);
-      setError(null);
-      setIsLoading(false);
-    }
-  }, [audioId, processedAudioPath, originalFilenameFromProps, useFallbackForTranscription]); // Añade useFallbackForTranscription a las dependencias
-
-
-  useEffect(() => {
-    const audioElement = audioRef.current;
-    if (!audioElement) return;
-
-    const updateCurrentTime = () => {
-      setCurrentTime(audioElement.currentTime);
-    };
-
-    audioElement.addEventListener("timeupdate", updateCurrentTime);
-    audioElement.addEventListener("loadedmetadata", updateCurrentTime); // Actualizar al cargar
-
-    return () => {
-      audioElement.removeEventListener("timeupdate", updateCurrentTime);
-      audioElement.removeEventListener("loadedmetadata", updateCurrentTime);
-    };
-  }, [audioSrc]); // Re-ejecutar si cambia el src del audio
-
-
-  useEffect(() => {
-    // Encontrar la línea activa basada en currentTime
-    // Usamos findLast para el caso de segmentos con duración 0 o muy cortos
-    const currentActiveLine = formattedTranscript.findLast(
-      (line) => currentTime >= line.time && currentTime < (line.time + line.duration)
-    ) || formattedTranscript.findLast( // Fallback por si el último segmento no tiene duración bien definida
-      (line) => currentTime >= line.time
-    );
-    setActiveLine(currentActiveLine);
-  }, [currentTime, formattedTranscript]);
-
-
-  const handleLineClick = (time) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      audioRef.current.play(); // Opcional: iniciar reproducción al hacer clic
-    }
-  };
-
-  if (!audioId && !isLoading) {
-    return <div className="transcript-player-container"><p className="tp-message">No hay audio seleccionado para transcribir.</p></div>;
-  }
+  const getActiveLine = () =>
+    transcriptMock.findLast((line) => currentTime >= line.time);
 
   return (
-    <div className="transcript-player-container">
-      <h3 className="tp-audio-title">{audioTitle}</h3> {/* Siempre se muestra si hay audioId o isLoading es true */}
-      
-      {audioSrc ? (
-        <audio ref={audioRef} controls src={audioSrc} className="tp-audio-player" />
-      ) : (
-        // Solo se muestra si NO está cargando Y no hay audioSrc
-        !isLoading && <p className="tp-message error">Ruta del archivo de audio no disponible.</p> 
-      )}
-      
-      {/* Mensaje de carga */}
-      {isLoading && <p className="tp-message">Cargando transcripción...</p>}
-      
-      {/* Mensaje de error */}
-      {error && <p className="tp-message error">Error: {error}</p>}
-
-      {/* Muestra las líneas de transcripción */}
-      {!isLoading && !error && formattedTranscript.length > 0 && (
-        <div className="tp-transcript-lines">
-          {formattedTranscript.map((line, i) => (
-            <p
-              key={i}
-              className={`tp-line ${activeLine === line ? "active" : ""}`}
-              onClick={() => handleLineClick(line.time)}
-            >
-              {line.text}
-            </p>
-          ))}
-        </div>
-      )}
-
-      {/* Mensaje si no hay transcripción después de cargar y sin errores */}
-       {!isLoading && !error && formattedTranscript.length === 0 && audioId && (
-         <p className="tp-message">No hay transcripción disponible para este audio.</p>
-       )}
+    <div className="transcriptPlayer">
+      <audio ref={audioRef} controls src="/mock-audio.mp3" />
+      <div className="transcript">
+        {transcriptMock.map((line, i) => (
+          <p
+            key={i}
+            className={
+              currentTime >= line.time ? "active" : ""
+            }
+          >
+            {line.text}
+          </p>
+        ))}
+      </div>
     </div>
   );
 };
