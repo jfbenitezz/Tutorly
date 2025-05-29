@@ -29,3 +29,4 @@ transcription_server/output
 transcription_server/transcriptions
 transcription_server/audios
 */__pycache__
+.venv/
