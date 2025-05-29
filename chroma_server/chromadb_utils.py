@@ -96,3 +96,22 @@ def query_text(query, top_k=3, page_start=None, page_end=None):
         (doc, cite_apa(meta))
         for doc, meta in zip(results['documents'][0], results['metadatas'][0])
     ]
+
+def empty_collection():
+    """
+    Completely empties the ChromaDB collection by deleting all documents and embeddings.
+    """
+    logging.info("Starting to empty the collection")
+    try:
+        # Get all IDs in the collection
+        items = collection.get()
+        if items['ids']:
+            # Delete all items by their IDs
+            collection.delete(ids=items['ids'])
+            logging.info(f"Successfully deleted {len(items['ids'])} items from the collection")
+        else:
+            logging.info("Collection was already empty")
+        return True
+    except Exception as e:
+        logging.error(f"Error emptying collection: {str(e)}")
+        return False

@@ -1,7 +1,7 @@
 # main.py
 
-from fastapi import FastAPI, UploadFile, File, Query
-from chromadb_utils import extract_chunks_from_pdf, index_chunks, query_text
+from fastapi import FastAPI, HTTPException, UploadFile, File, Query
+from chromadb_utils import extract_chunks_from_pdf, index_chunks, query_text, empty_collection
 import os
 import uuid
 
@@ -22,6 +22,22 @@ async def upload_pdf(file: UploadFile = File(...)):
     index_chunks(chunks)
     return {"message": "PDF processed and indexed.", "file_id": file_id}
 
+@app.post("/empty-collection/")
+async def empty_collection_endpoint():
+    """
+    Endpoint to empty the ChromaDB collection.
+    Returns success status and message.
+    """
+    try:
+        success = empty_collection()
+        if success:
+            return {"status": "success", "message": "Collection emptied successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to empty collection")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/query/")
 def query_endpoint(
     q: str = Query(..., description="Search query"),
@@ -32,6 +48,8 @@ def query_endpoint(
     results = query_text(q, top_k=top_k, page_start=page_start, page_end=page_end)
     return {"results": [{"text": text, "citation": citation} for text, citation in results]}
 
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=9000)
