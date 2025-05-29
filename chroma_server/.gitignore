@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Entornos virtuales
 .venv/
 venv/
@@ -11,3 +12,6 @@ env/
 __pycache__/
 
 # Otros archivos que quieras ignorar...
+=======
+data/*
+>>>>>>> 89c23548d2ec08b8d20bdcaa5aae2fa7d7191fa5

@@ -1,0 +1,39 @@
+# Entorno Virtual
+.venv/
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd # Añadido por si acaso, son como DLLs de Python en Windows
+
+# Archivos de VS Code
+.vscode/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de modelos LLM grandes
+# Ignorar todo dentro de la carpeta 'models/'
+models/*
+# Pero NO ignorar el archivo .gitkeep dentro de 'models/' para que la carpeta se rastree
+!models/.gitkeep
+
+# Archivos de salida
+# Ignorar todo dentro de la carpeta 'output/'
+output/*
+# Pero NO ignorar el archivo .gitkeep dentro de 'output/' para que la carpeta se rastree
+!output/.gitkeep
+
+# Archivos de datos de entrada
+# Ignorar todo dentro de la carpeta 'data/'
+data/*
+# Pero NO ignorar el archivo .gitkeep dentro de 'data/' para que la carpeta se rastree
+!data/.gitkeep
+
+# Archivos de log (si los generas y no quieres versionarlos)
+*.log
+
+# Archivos .env (para variables de entorno, nunca deben subirse)
+.env
